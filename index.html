@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fluxo Operacional - Logística</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #30363d;
+      background-color: #161b22;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: #21262d;
+      color: #8b949e;
+      border: 1px solid #30363d;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .tab-btn:hover {
+      background: #30363d;
+      color: #f0f6fc;
+    }
+    .tab-btn.active {
+      background: #1f6feb;
+      color: #ffffff;
+      border-color: #388bfd;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      overflow: auto;
+    }
+    .diagram-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 32px;
+      max-width: 95vw;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">Mapeamento de Processos Operacionais</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active">Inbound / Recebimento</button>
+      <button class="tab-btn" disabled style="opacity: 0.4; cursor: not-allowed;">Processamento</button>
+      <button class="tab-btn" disabled style="opacity: 0.4; cursor: not-allowed;">Sorting</button>
+      <button class="tab-btn" disabled style="opacity: 0.4; cursor: not-allowed;">Expedição</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="diagram-card">
+      <pre class="mermaid">
+flowchart LR
+    %% Nós principais
+    A[Carreta Chegou no Galpão] --> B[Conduzir Carreta até a Doca]
+    B --> C[Procedimentos de Segurança]
+    C --> D{Verificar TO}
+
+    %% Condições TO
+    D -- Incorreta --> D_ERR[Informar motorista para retirar a carreta]
+    D -- Correta --> E[Seguir para Descarregamento da Carga]
+
+    %% Descarregamento
+    E --> F[Bipar as TOs]
+    F --> G[Segregar as Gaylords para o Processamento]
+    G --> H{Pacote Volumoso?}
+
+    %% Condições Volume
+    H -- Sim --> I[Levar até a Área dos Pacotes Volumosos]
+    H -- Não --> J[Levar pacotes para Ilha]
+
+    %% Próxima Etapa Macro
+    I --> PROC([Processamento])
+    J --> PROC([Processamento])
+
+    %% Estilos de nós
+    classDef default fill:#21262d,stroke:#30363d,stroke-width:1px,color:#c9d1d9;
+    classDef success fill:#238636,stroke:#2ea043,color:#ffffff;
+    classDef danger fill:#da3633,stroke:#f85149,color:#ffffff;
+    classDef decision fill:#1f6feb,stroke:#388bfd,color:#ffffff;
+    classDef next fill:#8957e5,stroke:#a371f7,color:#ffffff;
+
+    class D,H decision;
+    class E success;
+    class D_ERR danger;
+    class PROC next;
+      </pre>
+    </div>
+  </main>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      flowchart: {
+        curve: 'basis',
+        nodeSpacing: 40,
+        rankSpacing: 40
+      }
+    });
+  </script>
+</body>
+</html>
