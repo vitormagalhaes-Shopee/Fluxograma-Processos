@@ -1,193 +1,197 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fluxo Operacional de Logística | Process Map</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Mapa interativo do fluxo operacional de recebimento, processamento, sorting e expedição."
+    />
+    <title>Mapa do fluxo operacional</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <p class="eyebrow">CENTRO DE OPERAÇÕES</p>
+            <h1>Mapa do fluxo operacional</h1>
+          </div>
+        </div>
 
-  <!-- CABEÇALHO CORPORATIVO -->
-  <header class="app-header">
-    <div class="header-left">
-      <div class="header-logo">
-        <span class="logo-icon">⚡</span>
-        <div>
-          <h1>Central de Operações Hub & Logística</h1>
-          <p class="subtitle">Fluxograma Operacional Integrado • Inbound ao Outbound</p>
+        <div class="topbar-actions">
+          <label class="search-box" for="search-input">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Buscar etapa, status ou indicador..."
+              autocomplete="off"
+            />
+            <kbd>/</kbd>
+          </label>
+          <button class="icon-button" id="help-button" type="button" aria-label="Abrir ajuda">
+            ?
+          </button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="intro-row">
+          <div>
+            <p class="section-kicker">VISÃO OPERACIONAL</p>
+            <h2>Navegue dentro do processo</h2>
+            <p class="intro-copy">
+              Acompanhe a jornada da carga desde a chegada ao galpão até os encaminhamentos de expedição e inventário.
+              Clique em qualquer etapa para consultar os detalhes disponíveis.
+            </p>
+          </div>
+          <div class="flow-status">
+            <span class="status-dot"></span>
+            <span id="flow-status-label">Fluxo em espera</span>
+          </div>
+        </section>
+
+        <section class="overview-grid" aria-label="Resumo do processo">
+          <article class="metric-card metric-primary">
+            <span class="metric-label">Total de etapas</span>
+            <strong id="metric-total">0</strong>
+            <span class="metric-foot">cadastradas no fluxo</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Etapas críticas</span>
+            <strong id="metric-critical">0</strong>
+            <span class="metric-foot">marcadas nos dados</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Processos</span>
+            <strong id="metric-processes">0</strong>
+            <span class="metric-foot">grupos operacionais</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Indicadores</span>
+            <strong id="metric-indicators">0</strong>
+            <span class="metric-foot">relacionados ao fluxo</span>
+          </article>
+          <article class="metric-card metric-update">
+            <span class="metric-label">Última atualização</span>
+            <strong id="metric-updated">Não informada</strong>
+            <span class="metric-foot">origem: planilha operacional</span>
+          </article>
+        </section>
+
+        <section class="workspace-card" aria-label="Visualização do fluxo">
+          <div class="workspace-toolbar">
+            <div class="toolbar-copy">
+              <span class="live-pulse"></span>
+              <span id="result-count">Fluxo completo</span>
+              <span class="toolbar-divider"></span>
+              <span>Arraste para navegar</span>
+            </div>
+            <div class="toolbar-actions">
+              <button class="toolbar-button" id="run-flow-button" type="button">
+                <span class="button-play" aria-hidden="true">▶</span>
+                <span>Executar fluxo</span>
+              </button>
+              <button class="toolbar-button toolbar-button-muted" id="pause-flow-button" type="button">
+                <span aria-hidden="true">Ⅱ</span>
+                <span>Pausar</span>
+              </button>
+              <button class="toolbar-button toolbar-button-muted" id="resume-flow-button" type="button">
+                <span aria-hidden="true">▶</span>
+                <span>Continuar</span>
+              </button>
+              <button class="toolbar-button toolbar-button-muted" id="restart-flow-button" type="button">
+                <span aria-hidden="true">↺</span>
+                <span>Reiniciar</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flow-stage" id="flow-stage">
+            <div class="stage-grid" aria-hidden="true"></div>
+            <div class="stage-world" id="stage-world">
+              <div class="group-layer" id="group-layer"></div>
+              <svg class="connector-layer" id="connector-layer" aria-hidden="true"></svg>
+              <div class="node-layer" id="node-layer"></div>
+            </div>
+            <div class="empty-search-state" id="empty-search-state" hidden>
+              <span class="empty-search-icon">⌕</span>
+              <strong>Nenhuma etapa encontrada</strong>
+              <p>Tente buscar por outro nome, palavra-chave ou indicador.</p>
+            </div>
+            <div class="zoom-controls" aria-label="Controles de navegação">
+              <button type="button" id="zoom-in" aria-label="Aumentar zoom">+</button>
+              <span id="zoom-level">100%</span>
+              <button type="button" id="zoom-out" aria-label="Diminuir zoom">−</button>
+              <span class="zoom-divider"></span>
+              <button type="button" id="home-view" aria-label="Voltar à visualização inicial">⌂</button>
+            </div>
+          </div>
+
+          <div class="workspace-footer">
+            <div class="legend">
+              <span class="legend-item"><i class="legend-swatch legend-standard"></i>Etapa</span>
+              <span class="legend-item"><i class="legend-swatch legend-decision"></i>Decisão</span>
+              <span class="legend-item"><i class="legend-swatch legend-alert"></i>Desvio operacional</span>
+            </div>
+            <div class="hint">
+              <span class="hint-key">Clique</span> para detalhes
+              <span class="hint-key">Scroll</span> para zoom
+              <span class="hint-key">Arraste</span> para navegar
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <aside class="details-panel" id="details-panel" aria-hidden="true" aria-labelledby="details-title">
+      <div class="panel-backdrop" id="panel-backdrop"></div>
+      <div class="panel-content">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker" id="details-category">ETAPA OPERACIONAL</p>
+            <h2 id="details-title">Selecione uma etapa</h2>
+          </div>
+          <button class="close-button" id="close-panel" type="button" aria-label="Fechar detalhes">×</button>
+        </div>
+        <div class="panel-scroll">
+          <div class="detail-hero">
+            <span class="detail-number" id="details-number">01</span>
+            <div>
+              <span class="detail-type" id="details-type">Etapa</span>
+              <span class="detail-status" id="details-status" hidden></span>
+            </div>
+          </div>
+          <div class="detail-description" id="details-description"></div>
+          <div class="detail-grid" id="detail-grid"></div>
+          <div class="panel-next" id="panel-next" hidden>
+            <span>PRÓXIMO PONTO DO FLUXO</span>
+            <button type="button" id="next-step-button"></button>
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- BARRA DE BUSCA -->
-    <div class="header-search">
-      <div class="search-box">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M18 10.5a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        <input type="text" id="searchInput" placeholder="Buscar etapa, responsável, sistema..." autocomplete="off">
-        <button id="clearSearchBtn" class="clear-btn" title="Limpar busca">&times;</button>
-      </div>
-      <div id="searchResultsCount" class="search-counter"></div>
-    </div>
+    <dialog class="help-dialog" id="help-dialog">
+      <button class="close-button dialog-close" id="close-help" type="button" aria-label="Fechar ajuda">×</button>
+      <p class="panel-kicker">COMO NAVEGAR</p>
+      <h2>Leia o processo como um mapa</h2>
+      <p>
+        Use o mouse para arrastar a área do fluxo e a roda do mouse para aproximar ou afastar. Os controles no canto
+        inferior esquerdo restauram a visualização inicial.
+      </p>
+      <p>
+        Clique em uma etapa para abrir seus dados. O botão <strong>Executar fluxo</strong> percorre a sequência
+        cadastrada em <code>ordemExecucao</code>, no arquivo <code>script.js</code>.
+      </p>
+      <button class="toolbar-button" id="help-understood" type="button">Entendi</button>
+    </dialog>
 
-    <!-- CONTROLES DO SIMULADOR DE FLUXO -->
-    <div class="header-actions">
-      <button id="btnRunFlow" class="btn btn-primary" title="Percorrer o fluxo operacional passo a passo">
-        <span class="btn-icon">▶</span> <span class="btn-label">Executar Fluxo</span>
-      </button>
-      <button id="btnPauseFlow" class="btn btn-secondary" style="display: none;" title="Pausar execução">
-        <span class="btn-icon">⏸</span> Pausar
-      </button>
-      <button id="btnRestartFlow" class="btn btn-secondary" title="Reiniciar do início">
-        <span class="btn-icon">↺</span> Reiniciar
-      </button>
-    </div>
-  </header>
-
-  <!-- BARRA DE KPIS & MÉTRICAS EXTRAÍDAS DINAMICAMENTE -->
-  <section class="kpi-bar">
-    <div class="kpi-card">
-      <span class="kpi-label">Total de Etapas</span>
-      <span class="kpi-val" id="kpiTotalStages">0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Fases do Processo</span>
-      <span class="kpi-val" id="kpiTotalPhases">0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Pontos de Decisão</span>
-      <span class="kpi-val" id="kpiCriticalStages">0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Tratativas de Inventário</span>
-      <span class="kpi-val" id="kpiInventoryPaths">0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Sistemas / SOPs</span>
-      <span class="kpi-val" id="kpiSystemsCount">0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Última Atualização</span>
-      <span class="kpi-val" id="kpiLastUpdate">--/--/----</span>
-    </div>
-  </section>
-
-  <!-- BARRA DE FILTROS RÁPIDOS POR CATEGORIA -->
-  <nav class="category-filters" id="categoryFilterBar">
-    <button class="filter-chip active" data-category="ALL">Todas as Fases</button>
-    <button class="filter-chip" data-category="Doca & Inbound">1. Doca & Inbound</button>
-    <button class="filter-chip" data-category="Processamento">2. Processamento & Triagem</button>
-    <button class="filter-chip" data-category="Etiquetagem & Sorting">3. Etiquetagem & Sorting</button>
-    <button class="filter-chip" data-category="Expedição">4. Expedição & Rotas</button>
-    <button class="filter-chip" data-category="Inventário">5. Inventário & Exceções</button>
-  </nav>
-
-  <!-- ÁREA PRINCIPAL DO WORKSPACE (CANVAS INTERATIVO) -->
-  <main class="viewport-container" id="viewportContainer">
-    <div class="canvas-panzoom-layer" id="panZoomLayer">
-      <!-- Camada de Conectores SVG -->
-      <svg id="svgConnectors" class="connections-layer"></svg>
-      <!-- Camada de Grupos e Cards HTML -->
-      <div id="diagramContainer" class="diagram-grid"></div>
-    </div>
-
-    <!-- HUD DE NAVEGAÇÃO E ZOOM -->
-    <div class="viewport-controls">
-      <button id="btnZoomIn" class="ctrl-btn" title="Aproximar (+)">+</button>
-      <button id="btnZoomOut" class="ctrl-btn" title="Afastar (−)">−</button>
-      <button id="btnResetView" class="ctrl-btn" title="Centralizar visualização (⌂)">⌂</button>
-      <span class="zoom-indicator" id="zoomLevelDisplay">100%</span>
-    </div>
-
-    <!-- BANNER DE STATUS DO SIMULADOR (RODANDO) -->
-    <div id="simulationBanner" class="simulation-banner" style="display: none;">
-      <span class="pulse-dot"></span>
-      <span id="simulationText">Simulando etapa: ...</span>
-      <span class="sim-speed">Velocidade: 2.2s/etapa</span>
-    </div>
-
-    <!-- LEGENDA DOS TIPOS DE NÓS -->
-    <div class="map-legend">
-      <div class="legend-item"><span class="legend-badge start"></span> Início / Conclusão</div>
-      <div class="legend-item"><span class="legend-badge standard"></span> Operação Padrão</div>
-      <div class="legend-item"><span class="legend-badge decision"></span> Decisão / Validação</div>
-      <div class="legend-item"><span class="legend-badge exception"></span> Tratativa / Inventário</div>
-    </div>
-  </main>
-
-  <!-- PAINEL LATERAL DE DETALHES (SLIDE-OVER DRAWER) -->
-  <aside id="detailsDrawer" class="drawer-panel">
-    <div class="drawer-header">
-      <div class="drawer-category-tag" id="drawerCategory">Categoria</div>
-      <button id="btnCloseDrawer" class="drawer-close-btn" title="Fechar painel">&times;</button>
-    </div>
-
-    <div class="drawer-body">
-      <div class="drawer-title-row">
-        <h2 id="drawerTitle">Nome da Etapa</h2>
-        <span id="drawerBadge" class="drawer-badge">Status</span>
-      </div>
-
-      <p class="drawer-description" id="drawerDescription"></p>
-
-      <div class="info-section">
-        <h3>Responsável pela Execução</h3>
-        <p class="info-text" id="drawerResponsible">--</p>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-box">
-          <span class="box-label">Entrada (Inputs)</span>
-          <span class="box-value" id="drawerInput">--</span>
-        </div>
-        <div class="info-box">
-          <span class="box-label">Saída (Outputs)</span>
-          <span class="box-value" id="drawerOutput">--</span>
-        </div>
-      </div>
-
-      <div class="info-section">
-        <h3>Processamento & Ação Realizada</h3>
-        <p class="info-text" id="drawerProcessing">--</p>
-      </div>
-
-      <div class="info-section">
-        <h3>Regras de Negócio & Procedimentos (SOP)</h3>
-        <ul class="tag-list" id="drawerRules"></ul>
-      </div>
-
-      <div class="info-section">
-        <h3>Sistemas & Dispositivos Envolvidos</h3>
-        <div class="system-chips" id="drawerSystems"></div>
-      </div>
-
-      <div class="info-section">
-        <h3>Indicadores Relacionados (KPIs)</h3>
-        <div class="kpi-chips" id="drawerKpis"></div>
-      </div>
-
-      <div class="info-section">
-        <h3>Possíveis Ofensores & Falhas</h3>
-        <ul class="offenders-list" id="drawerOffenders"></ul>
-      </div>
-
-      <div class="info-section">
-        <h3>Observações de Campo</h3>
-        <p class="info-text italic" id="drawerNotes">Nenhuma observação cadastrada no momento.</p>
-      </div>
-    </div>
-
-    <div class="drawer-footer">
-      <button id="btnFocusNode" class="btn btn-secondary full-width">Focar esta etapa no mapa</button>
-    </div>
-  </aside>
-
-  <!-- OVERLAY ESCURO PARA TELAS MENORES / FOCO -->
-  <div id="drawerOverlay" class="drawer-overlay"></div>
-
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
