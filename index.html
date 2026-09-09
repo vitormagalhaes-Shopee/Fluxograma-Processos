@@ -1,142 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fluxo Operacional - Logística</title>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    body {
-      background-color: #0d1117;
-      color: #c9d1d9;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-    header {
-      padding: 16px 24px;
-      border-bottom: 1px solid #30363d;
-      background-color: #161b22;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .header-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #58a6ff;
-    }
-    .nav-tabs {
-      display: flex;
-      gap: 8px;
-    }
-    .tab-btn {
-      background: #21262d;
-      color: #8b949e;
-      border: 1px solid #30363d;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .tab-btn:hover {
-      background: #30363d;
-      color: #f0f6fc;
-    }
-    .tab-btn.active {
-      background: #1f6feb;
-      color: #ffffff;
-      border-color: #388bfd;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      overflow: auto;
-    }
-    .diagram-card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      padding: 32px;
-      max-width: 95vw;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluxo Operacional de Logística | Process Map</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <header>
-    <div class="header-title">Mapeamento de Processos Operacionais</div>
-    <div class="nav-tabs">
-      <button class="tab-btn active">Inbound / Recebimento</button>
-      <button class="tab-btn" disabled style="opacity: 0.4; cursor: not-allowed;">Processamento</button>
-      <button class="tab-btn" disabled style="opacity: 0.4; cursor: not-allowed;">Sorting</button>
-      <button class="tab-btn" disabled style="opacity: 0.4; cursor: not-allowed;">Expedição</button>
+  <!-- CABEÇALHO CORPORATIVO -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-logo">
+        <span class="logo-icon">⚡</span>
+        <div>
+          <h1>Central de Operações Hub & Logística</h1>
+          <p class="subtitle">Fluxograma Operacional Integrado • Inbound ao Outbound</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA DE BUSCA -->
+    <div class="header-search">
+      <div class="search-box">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M18 10.5a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        <input type="text" id="searchInput" placeholder="Buscar etapa, responsável, sistema..." autocomplete="off">
+        <button id="clearSearchBtn" class="clear-btn" title="Limpar busca">&times;</button>
+      </div>
+      <div id="searchResultsCount" class="search-counter"></div>
+    </div>
+
+    <!-- CONTROLES DO SIMULADOR DE FLUXO -->
+    <div class="header-actions">
+      <button id="btnRunFlow" class="btn btn-primary" title="Percorrer o fluxo operacional passo a passo">
+        <span class="btn-icon">▶</span> <span class="btn-label">Executar Fluxo</span>
+      </button>
+      <button id="btnPauseFlow" class="btn btn-secondary" style="display: none;" title="Pausar execução">
+        <span class="btn-icon">⏸</span> Pausar
+      </button>
+      <button id="btnRestartFlow" class="btn btn-secondary" title="Reiniciar do início">
+        <span class="btn-icon">↺</span> Reiniciar
+      </button>
     </div>
   </header>
 
-  <main>
-    <div class="diagram-card">
-      <pre class="mermaid">
-flowchart LR
-    %% Nós principais
-    A[Carreta Chegou no Galpão] --> B[Conduzir Carreta até a Doca]
-    B --> C[Procedimentos de Segurança]
-    C --> D{Verificar TO}
+  <!-- BARRA DE KPIS & MÉTRICAS EXTRAÍDAS DINAMICAMENTE -->
+  <section class="kpi-bar">
+    <div class="kpi-card">
+      <span class="kpi-label">Total de Etapas</span>
+      <span class="kpi-val" id="kpiTotalStages">0</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Fases do Processo</span>
+      <span class="kpi-val" id="kpiTotalPhases">0</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Pontos de Decisão</span>
+      <span class="kpi-val" id="kpiCriticalStages">0</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Tratativas de Inventário</span>
+      <span class="kpi-val" id="kpiInventoryPaths">0</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Sistemas / SOPs</span>
+      <span class="kpi-val" id="kpiSystemsCount">0</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Última Atualização</span>
+      <span class="kpi-val" id="kpiLastUpdate">--/--/----</span>
+    </div>
+  </section>
 
-    %% Condições TO
-    D -- Incorreta --> D_ERR[Informar motorista para retirar a carreta]
-    D -- Correta --> E[Seguir para Descarregamento da Carga]
+  <!-- BARRA DE FILTROS RÁPIDOS POR CATEGORIA -->
+  <nav class="category-filters" id="categoryFilterBar">
+    <button class="filter-chip active" data-category="ALL">Todas as Fases</button>
+    <button class="filter-chip" data-category="Doca & Inbound">1. Doca & Inbound</button>
+    <button class="filter-chip" data-category="Processamento">2. Processamento & Triagem</button>
+    <button class="filter-chip" data-category="Etiquetagem & Sorting">3. Etiquetagem & Sorting</button>
+    <button class="filter-chip" data-category="Expedição">4. Expedição & Rotas</button>
+    <button class="filter-chip" data-category="Inventário">5. Inventário & Exceções</button>
+  </nav>
 
-    %% Descarregamento
-    E --> F[Bipar as TOs]
-    F --> G[Segregar as Gaylords para o Processamento]
-    G --> H{Pacote Volumoso?}
+  <!-- ÁREA PRINCIPAL DO WORKSPACE (CANVAS INTERATIVO) -->
+  <main class="viewport-container" id="viewportContainer">
+    <div class="canvas-panzoom-layer" id="panZoomLayer">
+      <!-- Camada de Conectores SVG -->
+      <svg id="svgConnectors" class="connections-layer"></svg>
+      <!-- Camada de Grupos e Cards HTML -->
+      <div id="diagramContainer" class="diagram-grid"></div>
+    </div>
 
-    %% Condições Volume
-    H -- Sim --> I[Levar até a Área dos Pacotes Volumosos]
-    H -- Não --> J[Levar pacotes para Ilha]
+    <!-- HUD DE NAVEGAÇÃO E ZOOM -->
+    <div class="viewport-controls">
+      <button id="btnZoomIn" class="ctrl-btn" title="Aproximar (+)">+</button>
+      <button id="btnZoomOut" class="ctrl-btn" title="Afastar (−)">−</button>
+      <button id="btnResetView" class="ctrl-btn" title="Centralizar visualização (⌂)">⌂</button>
+      <span class="zoom-indicator" id="zoomLevelDisplay">100%</span>
+    </div>
 
-    %% Próxima Etapa Macro
-    I --> PROC([Processamento])
-    J --> PROC([Processamento])
+    <!-- BANNER DE STATUS DO SIMULADOR (RODANDO) -->
+    <div id="simulationBanner" class="simulation-banner" style="display: none;">
+      <span class="pulse-dot"></span>
+      <span id="simulationText">Simulando etapa: ...</span>
+      <span class="sim-speed">Velocidade: 2.2s/etapa</span>
+    </div>
 
-    %% Estilos de nós
-    classDef default fill:#21262d,stroke:#30363d,stroke-width:1px,color:#c9d1d9;
-    classDef success fill:#238636,stroke:#2ea043,color:#ffffff;
-    classDef danger fill:#da3633,stroke:#f85149,color:#ffffff;
-    classDef decision fill:#1f6feb,stroke:#388bfd,color:#ffffff;
-    classDef next fill:#8957e5,stroke:#a371f7,color:#ffffff;
-
-    class D,H decision;
-    class E success;
-    class D_ERR danger;
-    class PROC next;
-      </pre>
+    <!-- LEGENDA DOS TIPOS DE NÓS -->
+    <div class="map-legend">
+      <div class="legend-item"><span class="legend-badge start"></span> Início / Conclusão</div>
+      <div class="legend-item"><span class="legend-badge standard"></span> Operação Padrão</div>
+      <div class="legend-item"><span class="legend-badge decision"></span> Decisão / Validação</div>
+      <div class="legend-item"><span class="legend-badge exception"></span> Tratativa / Inventário</div>
     </div>
   </main>
 
-  <script>
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'dark',
-      flowchart: {
-        curve: 'basis',
-        nodeSpacing: 40,
-        rankSpacing: 40
-      }
-    });
-  </script>
+  <!-- PAINEL LATERAL DE DETALHES (SLIDE-OVER DRAWER) -->
+  <aside id="detailsDrawer" class="drawer-panel">
+    <div class="drawer-header">
+      <div class="drawer-category-tag" id="drawerCategory">Categoria</div>
+      <button id="btnCloseDrawer" class="drawer-close-btn" title="Fechar painel">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="drawer-title-row">
+        <h2 id="drawerTitle">Nome da Etapa</h2>
+        <span id="drawerBadge" class="drawer-badge">Status</span>
+      </div>
+
+      <p class="drawer-description" id="drawerDescription"></p>
+
+      <div class="info-section">
+        <h3>Responsável pela Execução</h3>
+        <p class="info-text" id="drawerResponsible">--</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <span class="box-label">Entrada (Inputs)</span>
+          <span class="box-value" id="drawerInput">--</span>
+        </div>
+        <div class="info-box">
+          <span class="box-label">Saída (Outputs)</span>
+          <span class="box-value" id="drawerOutput">--</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Processamento & Ação Realizada</h3>
+        <p class="info-text" id="drawerProcessing">--</p>
+      </div>
+
+      <div class="info-section">
+        <h3>Regras de Negócio & Procedimentos (SOP)</h3>
+        <ul class="tag-list" id="drawerRules"></ul>
+      </div>
+
+      <div class="info-section">
+        <h3>Sistemas & Dispositivos Envolvidos</h3>
+        <div class="system-chips" id="drawerSystems"></div>
+      </div>
+
+      <div class="info-section">
+        <h3>Indicadores Relacionados (KPIs)</h3>
+        <div class="kpi-chips" id="drawerKpis"></div>
+      </div>
+
+      <div class="info-section">
+        <h3>Possíveis Ofensores & Falhas</h3>
+        <ul class="offenders-list" id="drawerOffenders"></ul>
+      </div>
+
+      <div class="info-section">
+        <h3>Observações de Campo</h3>
+        <p class="info-text italic" id="drawerNotes">Nenhuma observação cadastrada no momento.</p>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button id="btnFocusNode" class="btn btn-secondary full-width">Focar esta etapa no mapa</button>
+    </div>
+  </aside>
+
+  <!-- OVERLAY ESCURO PARA TELAS MENORES / FOCO -->
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
