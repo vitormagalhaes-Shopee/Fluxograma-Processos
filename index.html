@@ -1,197 +1,523 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Mapa interativo do fluxo operacional de recebimento, processamento, sorting e expedição."
-    />
-    <title>Mapa do fluxo operacional</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-          <div>
-            <p class="eyebrow">CENTRO DE OPERAÇÕES</p>
-            <h1>Mapa do fluxo operacional</h1>
-          </div>
-        </div>
-
-        <div class="topbar-actions">
-          <label class="search-box" for="search-input">
-            <span class="search-icon" aria-hidden="true">⌕</span>
-            <input
-              id="search-input"
-              type="search"
-              placeholder="Buscar etapa, status ou indicador..."
-              autocomplete="off"
-            />
-            <kbd>/</kbd>
-          </label>
-          <button class="icon-button" id="help-button" type="button" aria-label="Abrir ajuda">
-            ?
-          </button>
-        </div>
-      </header>
-
-      <main class="main-content">
-        <section class="intro-row">
-          <div>
-            <p class="section-kicker">VISÃO OPERACIONAL</p>
-            <h2>Navegue dentro do processo</h2>
-            <p class="intro-copy">
-              Acompanhe a jornada da carga desde a chegada ao galpão até os encaminhamentos de expedição e inventário.
-              Clique em qualquer etapa para consultar os detalhes disponíveis.
-            </p>
-          </div>
-          <div class="flow-status">
-            <span class="status-dot"></span>
-            <span id="flow-status-label">Fluxo em espera</span>
-          </div>
-        </section>
-
-        <section class="overview-grid" aria-label="Resumo do processo">
-          <article class="metric-card metric-primary">
-            <span class="metric-label">Total de etapas</span>
-            <strong id="metric-total">0</strong>
-            <span class="metric-foot">cadastradas no fluxo</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Etapas críticas</span>
-            <strong id="metric-critical">0</strong>
-            <span class="metric-foot">marcadas nos dados</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Processos</span>
-            <strong id="metric-processes">0</strong>
-            <span class="metric-foot">grupos operacionais</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Indicadores</span>
-            <strong id="metric-indicators">0</strong>
-            <span class="metric-foot">relacionados ao fluxo</span>
-          </article>
-          <article class="metric-card metric-update">
-            <span class="metric-label">Última atualização</span>
-            <strong id="metric-updated">Não informada</strong>
-            <span class="metric-foot">origem: planilha operacional</span>
-          </article>
-        </section>
-
-        <section class="workspace-card" aria-label="Visualização do fluxo">
-          <div class="workspace-toolbar">
-            <div class="toolbar-copy">
-              <span class="live-pulse"></span>
-              <span id="result-count">Fluxo completo</span>
-              <span class="toolbar-divider"></span>
-              <span>Arraste para navegar</span>
-            </div>
-            <div class="toolbar-actions">
-              <button class="toolbar-button" id="run-flow-button" type="button">
-                <span class="button-play" aria-hidden="true">▶</span>
-                <span>Executar fluxo</span>
-              </button>
-              <button class="toolbar-button toolbar-button-muted" id="pause-flow-button" type="button">
-                <span aria-hidden="true">Ⅱ</span>
-                <span>Pausar</span>
-              </button>
-              <button class="toolbar-button toolbar-button-muted" id="resume-flow-button" type="button">
-                <span aria-hidden="true">▶</span>
-                <span>Continuar</span>
-              </button>
-              <button class="toolbar-button toolbar-button-muted" id="restart-flow-button" type="button">
-                <span aria-hidden="true">↺</span>
-                <span>Reiniciar</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="flow-stage" id="flow-stage">
-            <div class="stage-grid" aria-hidden="true"></div>
-            <div class="stage-world" id="stage-world">
-              <div class="group-layer" id="group-layer"></div>
-              <svg class="connector-layer" id="connector-layer" aria-hidden="true"></svg>
-              <div class="node-layer" id="node-layer"></div>
-            </div>
-            <div class="empty-search-state" id="empty-search-state" hidden>
-              <span class="empty-search-icon">⌕</span>
-              <strong>Nenhuma etapa encontrada</strong>
-              <p>Tente buscar por outro nome, palavra-chave ou indicador.</p>
-            </div>
-            <div class="zoom-controls" aria-label="Controles de navegação">
-              <button type="button" id="zoom-in" aria-label="Aumentar zoom">+</button>
-              <span id="zoom-level">100%</span>
-              <button type="button" id="zoom-out" aria-label="Diminuir zoom">−</button>
-              <span class="zoom-divider"></span>
-              <button type="button" id="home-view" aria-label="Voltar à visualização inicial">⌂</button>
-            </div>
-          </div>
-
-          <div class="workspace-footer">
-            <div class="legend">
-              <span class="legend-item"><i class="legend-swatch legend-standard"></i>Etapa</span>
-              <span class="legend-item"><i class="legend-swatch legend-decision"></i>Decisão</span>
-              <span class="legend-item"><i class="legend-swatch legend-alert"></i>Desvio operacional</span>
-            </div>
-            <div class="hint">
-              <span class="hint-key">Clique</span> para detalhes
-              <span class="hint-key">Scroll</span> para zoom
-              <span class="hint-key">Arraste</span> para navegar
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <aside class="details-panel" id="details-panel" aria-hidden="true" aria-labelledby="details-title">
-      <div class="panel-backdrop" id="panel-backdrop"></div>
-      <div class="panel-content">
-        <div class="panel-header">
-          <div>
-            <p class="panel-kicker" id="details-category">ETAPA OPERACIONAL</p>
-            <h2 id="details-title">Selecione uma etapa</h2>
-          </div>
-          <button class="close-button" id="close-panel" type="button" aria-label="Fechar detalhes">×</button>
-        </div>
-        <div class="panel-scroll">
-          <div class="detail-hero">
-            <span class="detail-number" id="details-number">01</span>
-            <div>
-              <span class="detail-type" id="details-type">Etapa</span>
-              <span class="detail-status" id="details-status" hidden></span>
-            </div>
-          </div>
-          <div class="detail-description" id="details-description"></div>
-          <div class="detail-grid" id="detail-grid"></div>
-          <div class="panel-next" id="panel-next" hidden>
-            <span>PRÓXIMO PONTO DO FLUXO</span>
-            <button type="button" id="next-step-button"></button>
-          </div>
-        </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LM HUB — Mapa Operacional Interativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0a0e17;
+      --bg-surface: #111726;
+      --bg-elevated: #1a2236;
+      --bg-card: rgba(19, 27, 43, 0.92);
+      --border-subtle: #24324c;
+      --border-focus: #38bdf8;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --primary: #ee4d2d;
+      --primary-glow: rgba(238, 77, 45, 0.4);
+      --accent-blue: #38bdf8;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --sidebar-width: 460px;
+      --header-height: 68px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    header.app-header {
+      height: var(--header-height);
+      background: rgba(17, 23, 38, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+    }
+    .brand-section { display: flex; align-items: center; gap: 14px; }
+    .brand-logo {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #ee4d2d, #f97316);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+    .brand-logo svg { width: 24px; height: 24px; fill: #fff; }
+    .brand-titles h1 { font-size: 1.05rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .brand-titles p { font-size: 0.74rem; color: #94a3b8; font-weight: 500; }
+    .header-center { display: flex; align-items: center; gap: 14px; }
+    .search-box { position: relative; width: 280px; }
+    .search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: var(--text-muted); }
+    .search-box input {
+      width: 100%; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px;
+      padding: 8px 12px 8px 36px; color: #fff; font-size: 0.8rem; outline: none; transition: all 0.2s;
+    }
+    .search-box input:focus { border-color: var(--primary); width: 320px; }
+    .filter-tabs { display: flex; background: rgba(10, 14, 23, 0.8); padding: 3px; border-radius: 8px; border: 1px solid var(--border-subtle); gap: 3px; }
+    .filter-btn {
+      background: transparent; border: none; color: var(--text-secondary); font-size: 0.74rem; font-weight: 600;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+    .filter-btn.active { color: #fff; background: var(--bg-elevated); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .btn-action {
+      display: inline-flex; align-items: center; gap: 8px; background: var(--bg-elevated);
+      color: var(--text-primary); border: 1px solid var(--border-subtle); padding: 7px 14px;
+      border-radius: 8px; font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-action:hover { background: #25314c; border-color: var(--accent-blue); }
+    .btn-action.sweeper-highlight {
+      background: linear-gradient(135deg, #f59e0b, #d97706); color: #0b0f17; border-color: #fbbf24;
+      box-shadow: 0 2px 12px rgba(245, 158, 11, 0.4);
+    }
+    .btn-action.primary {
+      background: linear-gradient(135deg, #ee4d2d, #ea580c); color: #fff; border-color: #f97316;
+      box-shadow: 0 2px 10px var(--primary-glow);
+    }
+    .operational-alert-banner {
+      position: fixed; top: 76px; left: 50%; transform: translateX(-50%);
+      background: rgba(26, 21, 13, 0.95); border: 1.5px solid #f59e0b;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.25);
+      border-radius: 10px; padding: 8px 18px; display: flex; align-items: center; gap: 12px;
+      z-index: 45; font-size: 0.78rem; color: #fde68a; backdrop-filter: blur(8px); cursor: pointer;
+    }
+    .operational-alert-banner strong { color: #fbbf24; font-weight: 800; }
+    main.viewport-container {
+      position: absolute; top: var(--header-height); left: 0; right: 0; bottom: 0;
+      overflow: hidden; background: radial-gradient(circle at 50% 30%, #151e30 0%, #0a0e17 85%); cursor: grab;
+    }
+    main.viewport-container:active { cursor: grabbing; }
+    .grid-background {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none;
+    }
+    #flow-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-origin: 0 0; }
+    svg.connections-layer { position: absolute; top: 0; left: 0; width: 2200px; height: 2400px; overflow: visible; pointer-events: none; }
+    .flow-node {
+      position: absolute; width: 280px; background: var(--bg-card);
+      border: 1.5px solid var(--border-subtle); border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .flow-node:hover {
+      transform: translateY(-4px); border-color: var(--border-focus);
+      box-shadow: 0 16px 30px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.2); z-index: 20;
+    }
+    .flow-node.active-selected {
+      border-color: var(--primary) !important; box-shadow: 0 0 0 2px var(--primary), 0 12px 30px var(--primary-glow) !important; z-index: 30;
+    }
+    .flow-node.sweeper-hero {
+      border-color: #f59e0b !important;
+      background: linear-gradient(145deg, rgba(35, 26, 12, 0.95), rgba(20, 28, 45, 0.95)) !important;
+      box-shadow: 0 0 0 2px #f59e0b, 0 12px 30px rgba(245, 158, 11, 0.35) !important;
+      animation: pulse-sweeper 2.5s infinite;
+    }
+    @keyframes pulse-sweeper {
+      0% { box-shadow: 0 0 0 2px #f59e0b, 0 8px 20px rgba(245, 158, 11, 0.3); }
+      50% { box-shadow: 0 0 0 4px #fbbf24, 0 16px 35px rgba(245, 158, 11, 0.6); }
+      100% { box-shadow: 0 0 0 2px #f59e0b, 0 8px 20px rgba(245, 158, 11, 0.3); }
+    }
+    .node-badge {
+      font-size: 0.64rem; font-weight: 800; letter-spacing: 0.04em; padding: 3px 8px;
+      border-radius: 5px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; display: inline-block; margin-bottom: 8px;
+    }
+    .badge-main { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-decision { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-action { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-inventory { background: rgba(245, 158, 11, 0.3); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.6); font-weight: 900; }
+    .node-title { font-size: 0.88rem; font-weight: 800; color: #fff; margin-bottom: 5px; line-height: 1.3; }
+    .node-sub { font-size: 0.74rem; color: #cbd5e1; line-height: 1.35; margin-bottom: 10px; }
+    .node-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px; font-size: 0.7rem; color: var(--text-muted); }
+    .node-resp { color: #94a3b8; font-weight: 600; }
+    .node-cta { color: var(--accent-blue); font-weight: 700; }
+    path.edge-path { fill: none; stroke: #334155; stroke-width: 2.2; stroke-linecap: round; transition: stroke 0.3s, stroke-width 0.3s; }
+    path.edge-path.highlight { stroke: #f59e0b; stroke-width: 3.5; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5)); }
+    text.edge-label { font-size: 10.5px; font-weight: 700; fill: #cbd5e1; paint-order: stroke; stroke: #0a0e17; stroke-width: 4px; pointer-events: none; }
+    aside.process-drawer {
+      position: fixed; top: var(--header-height); right: -500px; width: var(--sidebar-width); bottom: 0;
+      background: var(--bg-surface); border-left: 1px solid var(--border-subtle); box-shadow: -10px 0 35px rgba(0, 0, 0, 0.7);
+      z-index: 60; transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
+    }
+    aside.process-drawer.open { right: 0; }
+    .drawer-header { padding: 18px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; background: rgba(26, 34, 54, 0.6); }
+    .drawer-title-group h2 { font-size: 1.15rem; font-weight: 800; color: #fff; margin-top: 6px; }
+    .drawer-close { width: 32px; height: 32px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-subtle); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
+    .drawer-content { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .drawer-section { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; }
+    .drawer-section h3 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--accent-blue); margin-bottom: 10px; }
+    .drawer-section p { font-size: 0.84rem; line-height: 1.5; color: #e2e8f0; }
+    .step-item { display: flex; gap: 12px; font-size: 0.82rem; line-height: 1.45; color: #f1f5f9; margin-bottom: 8px; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; flex-shrink: 0; }
+    .canvas-controls { position: fixed; bottom: 24px; left: 24px; background: rgba(17, 23, 38, 0.95); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px; display: flex; gap: 6px; z-index: 40; }
+    .control-btn { width: 36px; height: 36px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+    .control-btn:hover { background: #25314c; border-color: var(--accent-blue); }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
       </div>
-    </aside>
+      <div class="brand-titles">
+        <h1>LM HUB — MAPA DE OPERAÇÃO</h1>
+        <p>Fluxo Oficial dos Pacotes & Padrão Operacional</p>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="global-search" placeholder="Buscar etapa (ex: Sweeper, Sobras)...">
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all">Ver Tudo</button>
+        <button class="filter-btn" data-filter="main">Fluxo Principal</button>
+        <button class="filter-btn" data-filter="inventory">Inventário / Sweeper</button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action sweeper-highlight" id="btn-focus-sweeper">
+        ⭐ Foco no Parcel Sweeper
+      </button>
+    </div>
+  </header>
 
-    <dialog class="help-dialog" id="help-dialog">
-      <button class="close-button dialog-close" id="close-help" type="button" aria-label="Fechar ajuda">×</button>
-      <p class="panel-kicker">COMO NAVEGAR</p>
-      <h2>Leia o processo como um mapa</h2>
-      <p>
-        Use o mouse para arrastar a área do fluxo e a roda do mouse para aproximar ou afastar. Os controles no canto
-        inferior esquerdo restauram a visualização inicial.
-      </p>
-      <p>
-        Clique em uma etapa para abrir seus dados. O botão <strong>Executar fluxo</strong> percorre a sequência
-        cadastrada em <code>ordemExecucao</code>, no arquivo <code>script.js</code>.
-      </p>
-      <button class="toolbar-button" id="help-understood" type="button">Entendi</button>
-    </dialog>
+  <div class="operational-alert-banner" id="banner-alert">
+    <span>🚨 <strong>REGRA DE OURO:</strong> Terminou a expedição? 100% das sobras DEVEM ser levadas para a <strong>Área Segregada do Parcel Sweeper</strong>!</span>
+  </div>
 
-    <script src="script.js"></script>
-  </body>
+  <main class="viewport-container" id="viewport">
+    <div class="grid-background"></div>
+    <div id="flow-canvas">
+      <svg class="connections-layer" id="svg-connections"></svg>
+      <div id="nodes-layer"></div>
+    </div>
+  </main>
+
+  <div class="canvas-controls">
+    <button class="control-btn" id="zoom-in">+</button>
+    <button class="control-btn" id="zoom-out">−</button>
+    <button class="control-btn" id="zoom-reset">⤢</button>
+  </div>
+
+  <aside class="process-drawer" id="process-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="node-badge badge-main" id="drawer-badge">ETAPA</span>
+        <h2 id="drawer-title">Nome da Etapa</h2>
+      </div>
+      <button class="drawer-close" id="drawer-close-btn">&times;</button>
+    </div>
+    <div class="drawer-content">
+      <div class="drawer-section">
+        <h3>👉 O QUE É ESSA ETAPA</h3>
+        <p id="drawer-desc">-</p>
+      </div>
+      <div class="drawer-section">
+        <h3>👤 QUEM FAZ</h3>
+        <p id="drawer-resp" style="font-weight: 700; color: #38bdf8;">-</p>
+      </div>
+      <div class="drawer-section">
+        <h3>📦 DE ONDE VEM E PRA ONDE VAI</h3>
+        <p><strong>De onde vem:</strong> <span id="drawer-entry" style="color: #cbd5e1;">-</span></p>
+        <p style="margin-top: 6px;"><strong>Para onde vai:</strong> <span id="drawer-exit" style="color: #cbd5e1;">-</span></p>
+      </div>
+      <div class="drawer-section">
+        <h3>📋 O QUE FAZER (PASSO A PASSO)</h3>
+        <div id="drawer-steps"></div>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    const PROCESSES = [
+      {
+        id: "prep_operacao", category: "main", title: "01. Preparação da Operação", type: "process", badge: "01. INÍCIO",
+        description: "Organização prévia do layout, equipamentos e briefing de 5 minutos antes de começar o turno.",
+        responsible: ["Líder de Turno", "Site Leader"], entry: "Início do Turno", exit: "Galpão pronto para descarga",
+        processSteps: ["Organizar layout e bancadas com 20 min de antecedência.", "Conferir coletores e impressoras.", "Fazer briefing de 5 min com a equipe."]
+      },
+      {
+        id: "chegada_lh", category: "main", title: "02. Chegada Line Haul & Pátio", type: "process", badge: "02. CHEGADA",
+        description: "Entrada do caminhão, calçamento das rodas e retenção da chave por segurança.",
+        responsible: ["Motorista", "GR", "Auxiliar B"], entry: "Caminhão do SOC", exit: "Veículo calçado na doca",
+        processSteps: ["Check-in do motorista no Driver App.", "Velocidade máxima 20 km/h no pátio.", "Colocar calços nas rodas e desligar o motor."]
+      },
+      {
+        id: "descarregamento", category: "main", title: "03. Descarregamento da Carga", type: "action", badge: "03. DESCARGA",
+        description: "Retirada dos unitizadores do caminhão e bipagem das TOs no sistema SPX.",
+        responsible: ["Auxiliares A, B e C"], entry: "Baú do caminhão", exit: "Buffer de Recebimento",
+        processSteps: ["Bipar etiqueta de TO de cada saca ou scuttle.", "Segregar no chão respeitando FIFO.", "Fazer varredura completa no baú antes de liberar."]
+      },
+      {
+        id: "recebimento_unitario", category: "main", title: "04. Recebimento Unitário", type: "process", badge: "04. RECEBIMENTO",
+        description: "Abertura dos pacotes e leitura individual no leitor SPX.",
+        responsible: ["Auxiliar de Logística"], entry: "Unitizadores", exit: "Etiquetagem de Rota",
+        processSteps: ["Bipar código AWB/BR de cada pacote.", "Se der VERDE: segue para etiquetagem.", "Se der AMARELO/VERMELHO: vai para gaiola de tratativas."]
+      },
+      {
+        id: "etiquetagem", category: "action", title: "05. Etiquetagem de Rota", type: "action", badge: "05. ETIQUETA",
+        description: "Colagem da etiqueta de rota com a letra correspondente à rua do galpão.",
+        responsible: ["Auxiliar B"], entry: "Pacote recebido", exit: "1º Sorting (Separação)",
+        processSteps: ["Colar etiqueta de rota sem tampar a etiqueta AWB.", "Colocar na esteira ou bancada sempre com a etiqueta para cima."]
+      },
+      {
+        id: "sorting_1", category: "main", title: "06. 1ª Separação (Por Letra/Rua)", type: "process", badge: "06. 1º SORTING",
+        description: "Separação dos pacotes pelas letras das ruas (A, B, C...).",
+        responsible: ["Auxiliar E (Pescador)"], entry: "Pacotes etiquetados", exit: "Gaiolas de cada Letra",
+        processSteps: ["Pescar pacotes da sua letra e colocar no flow rack.", "Goleiro no final da esteira pega pacotes que passaram."]
+      },
+      {
+        id: "sorting_2", category: "main", title: "07. 2ª Separação (Por Rota)", type: "process", badge: "07. 2º SORTING",
+        description: "Distribuição dos pacotes dentro do corredor para as gaiolas ou suportes de cada motorista.",
+        responsible: ["Auxiliar F"], entry: "Gaiola da Letra", exit: "Gaiolas de Rotas Fechadas",
+        processSteps: ["Distribuir nas gaiolas de acordo com o número da rota.", "Motos: porta-sacas com presilhas. Carros: 1 rota por gaiola."]
+      },
+      {
+        id: "expedicao_handover", category: "main", title: "08. Expedição (Mercadão)", type: "process", badge: "08. EXPEDIÇÃO",
+        description: "Conferência cega e entrega dos pacotes para os motoristas de 5 em 5 na bancada.",
+        responsible: ["Auxiliar de Bancada", "Motorista"], entry: "Gaiola da Rota", exit: "Veículo carregado",
+        processSteps: ["Bipar pacotes um a um olhando na tela.", "Passar pacotes para a linha verde em blocos de 5.", "Motorista confere e assina no Driver App."]
+      },
+      {
+        id: "pos_expedicao", category: "main", title: "09. Fim da Expedição: Sobras", type: "process", badge: "RECOLHIMENTO",
+        description: "Terminou o carregamento? Varredura total no galpão. Nenhum pacote pode ficar na bancada ou no chão!",
+        responsible: ["Auxiliares de Logística", "Líder de Turno"], entry: "Bancadas pós-expedição", exit: "Área Segregada do Parcel",
+        processSteps: ["Recolher todos os pacotes que não saíram nas rotas.", "Juntar sobras de On Hold e erros de triagem.", "LEVAR TUDO IMEDIATAMENTE PARA A ÁREA SEGREGADA DO PARCEL!"]
+      },
+      {
+        id: "segregacao_parcel", category: "inventory", title: "10. Área Segregada do Parcel", type: "action", badge: "🚨 REGRA DE OURO",
+        description: "Área demarcada no chão onde 100% das sobras da expedição DEVEM ser reunidas antes do inventário.",
+        responsible: ["Auxiliar de Logística", "Analista de Inventário"], entry: "Todas as sobras do galpão", exit: "Bipagem do Sweeper",
+        processSteps: ["PROIBIDO deixar pacote espalhado no galpão!", "Reunir todos os pacotes não expedidos em gaiolas identificadas.", "Deixar tudo centralizado na área do Parcel Sweeper."]
+      },
+      {
+        id: "parcel_sweeper", category: "inventory", title: "11. Bipagem do Parcel Sweeper", type: "process", badge: "⭐ INVENTÁRIO",
+        description: "Bipagem de 100% dos pacotes reunidos na área segregada para o sistema definir o destino de cada um.",
+        responsible: ["Analista de Logística (Inventário)"], entry: "Área Segregada do Parcel", exit: "Backlog D+1 ou Reversa SOC",
+        processSteps: ["Abrir a tela Parcel Sweeper no SPX após o fim de todas as saídas.", "Bipar pacote por pacote.", "Se der EXPEDITE: vai para gaiola de Backlog (sai no dia seguinte).", "Se der RETURN TO SOC: vai para gaiola de Reversa."]
+      }
+    ];
+
+    const GRAPH = {
+      nodes: [
+        { id: "prep_operacao", x: 500, y: 50, label: "01. Preparação da Operação", sub: "Layout, Sistemas & Equipe", badge: "01. INÍCIO" },
+        { id: "chegada_lh", x: 500, y: 190, label: "02. Chegada Line Haul", sub: "Calçamento de Rodas & Pátio", badge: "02. CHEGADA" },
+        { id: "descarregamento", x: 500, y: 330, label: "03. Descarregamento", sub: "Descarga & Bipagem de TOs", badge: "03. DESCARGA" },
+        { id: "recebimento_unitario", x: 500, y: 470, label: "04. Recebimento Unitário", sub: "Leitura individual no SPX", badge: "04. RECEBIMENTO" },
+        { id: "etiquetagem", x: 500, y: 610, label: "05. Etiquetagem de Rota", sub: "Colagem da etiqueta de rota", badge: "05. ETIQUETA" },
+        { id: "sorting_1", x: 500, y: 750, label: "06. 1ª Separação (Rua)", sub: "Separação por Letra do Corredor", badge: "06. 1º SORTING" },
+        { id: "sorting_2", x: 500, y: 890, label: "07. 2ª Separação (Rota)", sub: "Distribuição nas Gaiolas de Rotas", badge: "07. 2º SORTING" },
+        { id: "expedicao_handover", x: 500, y: 1030, label: "08. Expedição (Mercadão)", sub: "Conferência de 5 em 5 com motorista", badge: "08. EXPEDIÇÃO" },
+        { id: "pos_expedicao", x: 500, y: 1170, label: "09. Fim da Expedição: Sobras", sub: "Recolher 100% dos pacotes que sobraram", badge: "RECOLHIMENTO" },
+        { id: "segregacao_parcel", x: 500, y: 1330, label: "10. Área Segregada do Parcel", sub: "⚠️ OBRIGATÓRIO: Juntar todas as sobras aqui", badge: "🚨 REGRA DE OURO" },
+        { id: "parcel_sweeper", x: 500, y: 1490, label: "11. Bipagem Parcel Sweeper", sub: "Bipar 100% dos pacotes para definir destino", badge: "⭐ INVENTÁRIO" }
+      ],
+      edges: [
+        { id: "e1", source: "prep_operacao", target: "chegada_lh", label: "Abertura do Turno" },
+        { id: "e2", source: "chegada_lh", target: "descarregamento", label: "Veículo Calçado" },
+        { id: "e3", source: "descarregamento", target: "recebimento_unitario", label: "Indução" },
+        { id: "e4", source: "recebimento_unitario", target: "etiquetagem", label: "Verde: Sucesso" },
+        { id: "e5", source: "etiquetagem", target: "sorting_1", label: "Indução Etiquetado" },
+        { id: "e6", source: "sorting_1", target: "sorting_2", label: "Gaiolas de Letra" },
+        { id: "e7", source: "sorting_2", target: "expedicao_handover", label: "Rotas Fechadas" },
+        { id: "e8", source: "expedicao_handover", target: "pos_expedicao", label: "Última Saída" },
+        { id: "e9", source: "pos_expedicao", target: "segregacao_parcel", label: "⚠️ LEVAR TODAS AS SOBRAS", type: "highlight" },
+        { id: "e10", source: "segregacao_parcel", target: "parcel_sweeper", label: "Bipagem Diária 100%", type: "highlight" }
+      ]
+    };
+
+    const state = { scale: 0.82, panX: 80, panY: 30, isPanning: false, startX: 0, startY: 0, selectedNodeId: null };
+    const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('flow-canvas');
+    const nodesLayer = document.getElementById('nodes-layer');
+    const svgConnections = document.getElementById('svg-connections');
+    const drawer = document.getElementById('process-drawer');
+
+    function init() {
+      renderGraph();
+      setupEventListeners();
+      updateTransform();
+    }
+
+    function renderGraph() {
+      nodesLayer.innerHTML = '';
+      svgConnections.innerHTML = '';
+
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569" />
+        </marker>
+        <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
+        </marker>
+      `;
+      svgConnections.appendChild(defs);
+
+      GRAPH.nodes.forEach(node => {
+        const proc = PROCESSES.find(p => p.id === node.id) || {};
+        const nodeEl = document.createElement('div');
+        const isHero = (node.id === 'segregacao_parcel' || node.id === 'parcel_sweeper');
+        nodeEl.className = `flow-node ${isHero ? 'sweeper-hero' : ''}`;
+        nodeEl.id = `node-${node.id}`;
+        nodeEl.style.left = `${node.x}px`;
+        nodeEl.style.top = `${node.y}px`;
+
+        const badgeClass = isHero ? 'badge-inventory' : 'badge-main';
+
+        nodeEl.innerHTML = `
+          <div><span class="node-badge ${badgeClass}">${node.badge}</span></div>
+          <div class="node-title">${node.label}</div>
+          <div class="node-sub">${node.sub}</div>
+          <div class="node-footer">
+            <span class="node-resp">👤 ${(proc.responsible || ['Liderança'])[0]}</span>
+            <span class="node-cta">Como funciona →</span>
+          </div>
+        `;
+
+        nodeEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectNode(node.id);
+        });
+
+        nodesLayer.appendChild(nodeEl);
+      });
+
+      GRAPH.edges.forEach(edge => {
+        const sourceNode = GRAPH.nodes.find(n => n.id === edge.source);
+        const targetNode = GRAPH.nodes.find(n => n.id === edge.target);
+        if (!sourceNode || !targetNode) return;
+
+        const x1 = sourceNode.x + 140;
+        const y1 = sourceNode.y + 100;
+        const x2 = targetNode.x + 140;
+        const y2 = targetNode.y;
+
+        const pathD = `M ${x1} ${y1} C ${x1} ${y1 + 40}, ${x2} ${y2 - 40}, ${x2} ${y2}`;
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', pathD);
+        pathEl.setAttribute('id', `edge-${edge.id}`);
+        pathEl.setAttribute('class', `edge-path ${edge.type || ''}`);
+        pathEl.setAttribute('marker-end', edge.type ? 'url(#arrow-active)' : 'url(#arrow)');
+        svgConnections.appendChild(pathEl);
+
+        if (edge.label) {
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+          const labelEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          labelEl.setAttribute('x', midX);
+          labelEl.setAttribute('y', midY - 4);
+          labelEl.setAttribute('text-anchor', 'middle');
+          labelEl.setAttribute('class', 'edge-label');
+          labelEl.textContent = edge.label;
+          svgConnections.appendChild(labelEl);
+        }
+      });
+    }
+
+    function updateTransform() {
+      canvas.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
+    }
+
+    function selectNode(id, autoCenter = true) {
+      state.selectedNodeId = id;
+      document.querySelectorAll('.flow-node').forEach(el => el.classList.remove('active-selected'));
+      const activeEl = document.getElementById(`node-${id}`);
+      if (activeEl) activeEl.classList.add('active-selected');
+
+      const proc = PROCESSES.find(p => p.id === id);
+      if (proc) {
+        document.getElementById('drawer-badge').textContent = proc.badge;
+        document.getElementById('drawer-title').textContent = proc.title;
+        document.getElementById('drawer-desc').textContent = proc.description;
+        document.getElementById('drawer-resp').textContent = proc.responsible.join(' · ');
+        document.getElementById('drawer-entry').textContent = proc.entry;
+        document.getElementById('drawer-exit').textContent = proc.exit;
+
+        const stepsContainer = document.getElementById('drawer-steps');
+        stepsContainer.innerHTML = '';
+        proc.processSteps.forEach((step, idx) => {
+          const stepDiv = document.createElement('div');
+          stepDiv.className = 'step-item';
+          stepDiv.innerHTML = `<div class="step-num">${idx + 1}</div><div>${step}</div>`;
+          stepsContainer.appendChild(stepDiv);
+        });
+
+        drawer.classList.add('open');
+      }
+
+      if (autoCenter) centerOnNode(id);
+    }
+
+    function centerOnNode(id) {
+      const node = GRAPH.nodes.find(n => n.id === id);
+      if (!node) return;
+      const vWidth = viewport.clientWidth;
+      const vHeight = viewport.clientHeight;
+      const sidebarOffset = drawer.classList.contains('open') ? 200 : 0;
+      state.panX = (vWidth / 2) - ((node.x + 140) * state.scale) - sidebarOffset;
+      state.panY = (vHeight / 2) - ((node.y + 50) * state.scale);
+      updateTransform();
+    }
+
+    function setupEventListeners() {
+      viewport.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.flow-node') || e.target.closest('.canvas-controls')) return;
+        state.isPanning = true;
+        state.startX = e.clientX - state.panX;
+        state.startY = e.clientY - state.panY;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!state.isPanning) return;
+        state.panX = e.clientX - state.startX;
+        state.panY = e.clientY - state.startY;
+        updateTransform();
+      });
+
+      window.addEventListener('mouseup', () => { state.isPanning = false; });
+
+      viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.08 : 0.08;
+        state.scale = Math.min(1.8, Math.max(0.35, state.scale + delta));
+        updateTransform();
+      }, { passive: false });
+
+      document.getElementById('zoom-in').addEventListener('click', () => { state.scale = Math.min(1.8, state.scale + 0.15); updateTransform(); });
+      document.getElementById('zoom-out').addEventListener('click', () => { state.scale = Math.max(0.35, state.scale - 0.15); updateTransform(); });
+      document.getElementById('zoom-reset').addEventListener('click', () => { state.scale = 0.82; state.panX = 80; state.panY = 30; updateTransform(); });
+      document.getElementById('drawer-close-btn').addEventListener('click', () => { drawer.classList.remove('open'); });
+
+      document.getElementById('btn-focus-sweeper').addEventListener('click', () => { selectNode('segregacao_parcel', true); });
+      document.getElementById('banner-alert').addEventListener('click', () => { selectNode('segregacao_parcel', true); });
+
+      document.getElementById('global-search').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (!query) return;
+        const match = PROCESSES.find(p => p.title.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+        if (match) selectNode(match.id, true);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
 </html>
